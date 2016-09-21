@@ -32,7 +32,7 @@ public class WarZone extends JPanel{
 			generate();
 		System.out.println("Generated");
 		
-		//detectContinent();
+		//detectContinent();//
 	}
 	
 	private void generate()
