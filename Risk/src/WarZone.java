@@ -9,6 +9,8 @@ public class WarZone extends JPanel{
 	private int map1[][] = new int[1000][1000];
 	private int map2[][] = new int[1000][1000];
 	
+	private ArrayList<State> allStates = new ArrayList<>();
+	
 	public WarZone()
 	{
 		super();
@@ -32,7 +34,20 @@ public class WarZone extends JPanel{
 			generate();
 		System.out.println("Generated");
 		
-		//detectContinent();//
+		drawStates();
+		//HERE WE NEED TO MERGE SOME STATES TOGETHER TO MAXIMAZE THEIR SIZE
+	}
+	
+	private void applyMap()
+	{
+		for(int j = 0; j < 1000;j++)
+		{
+			for(int i = 0; i < 1000;i++)
+			{
+				map1[j][i] = map2[j][i];
+				map2[j][i] = -1;
+			}
+		}
 	}
 	
 	private void generate()
@@ -100,16 +115,8 @@ public class WarZone extends JPanel{
 				
 			}
 		}
-		
-		for(int j = 0; j < 1000;j++)
-		{
-			for(int i = 0; i < 1000;i++)
-			{
-				map1[j][i] = map2[j][i];
-				//System.out.print(map1[j][i]);
-				map2[j][i] = -1;
-			}
-		}
+
+		applyMap();
 	}
 	
 	private ArrayList<int[]> getVoisin(int j, int i, int comparator)
@@ -147,6 +154,7 @@ public class WarZone extends JPanel{
 	{
 
 		System.out.println("Painting");
+		System.out.println("nb of states : " + allStates.size());
 		
 		for(int j = 0; j < 1000;j++)
 		{
@@ -154,39 +162,59 @@ public class WarZone extends JPanel{
 			{
 				//map1[j][i];
 				//System.out.println(map1[j][i]);
+				if(map1[j][i] == -1)g.setColor(Color.BLACK);
+				else if(map1[j][i] == 0)g.setColor(Color.BLUE);
+				else 
+				{
+					int nbStates = allStates.size();
+					g.setColor(new Color(255-(255*map1[j][i]/nbStates),255*map1[j][i]/nbStates,255*map1[j][i]/nbStates));
+				}
 				
-				if(map1[j][i] == 1)g.setColor(Color.GREEN);
-				else if(map1[j][i] == -1)g.setColor(Color.BLACK);
-				else g.setColor(Color.BLUE);
 				g.fillRect(i, j, 1,1);
 				
-				//g.setColor(Color.WHITE);
-				//g.drawRect(200, 200, 600, 600);
+				g.setColor(Color.WHITE);
+				g.drawRect(150, 150, 700, 700);
 			}
 		}
 		
 	}
 	
-	private void detectContinent()
+	private void drawStates()
 	{
-		int continentID = 1;
+		int stateID = 1;
 		for(int j = 0; j < 1000 ; j++)
 		{
 			for (int i = 0; i < 1000; i++)
 			{
 				if(map1[j][i] == 1 && map2[j][i] == -1)
 				{
-					startRecursiveContinent(j,i,continentID);
+					allStates.add(new State(stateID++));
+					System.out.println("new State " + stateID);
+					stateBuilding(allStates.get(allStates.size()-1), j, i);
 				}
-				else
-					map2[j][i] = 0;
+				else if(map1[j][i] == 0)map2[j][i] = 0;
 			}
 		}
+		applyMap();
 	}
 	
-	private void startRecursiveContinent(int j, int i, int id)
+	private void stateBuilding(State s,int j, int i)
 	{
-		map2[j][i] = id;
+		map2[j][i] = s.addToState(j,i);
+		//System.out.println("State ID : " + s.getID());
+		if(s.getLands().size() > 4000)return;
+		
 		ArrayList<int[]> voisins = getVoisin(j,i,1);
+		while(voisins.size()>0)
+		{
+			int[] c = voisins.remove((int)(Math.random()*voisins.size()));
+			//System.out.println(c[0] + " " + c[1]);
+			if(map1[c[0]][c[1]] == 1 && map2[c[0]][c[1]] == -1)
+			{
+				//System.out.println("Coming from : " + j + "|" + i + " to " + c[0] + "|" + c[1]);
+				stateBuilding(s, c[0],c[1]);
+			}
+
+		}
 	}
 }
