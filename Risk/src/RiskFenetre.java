@@ -3,6 +3,7 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+@SuppressWarnings("serial")
 public class RiskFenetre extends JFrame
 {
 	private JPanel container = new JPanel();
