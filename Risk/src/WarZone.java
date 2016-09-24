@@ -22,10 +22,10 @@ public class WarZone extends JPanel{
 		for(State s : terrainGenerator.getAllStates())
 		{
 			moy+=s.size();i++;
-			System.out.println(s.size());
+			//System.out.println(s.size());
 		}
 		moy/=i;
-		System.out.println(moy);
+		//System.out.println(moy);
 	}
 	
 	
@@ -41,10 +41,10 @@ public class WarZone extends JPanel{
 			for(int i = 0; i < 1000;i++)
 			{
 				if(map[j][i] == -1)g.setColor(Color.WHITE);
-				else if(map[j][i] == 0)g.setColor(Color.BLUE);
+				else if(map[j][i] == 0)g.setColor(Color.BLACK);
 				else 
 				{
-					g.setColor(new Color(100+(int)(Math.pow(map[j][i],4)%156), 100+(int)(Math.pow(map[j][i],6)%156) ,255-(int)(Math.pow(map[j][i],3)%200)));
+					g.setColor(new Color(100+(int)(Math.pow(map[j][i],8)%156), 100+(int)(Math.pow(map[j][i],6)%156) ,255-(int)(Math.pow(map[j][i],7)%200)));
 				}
 				
 				g.fillRect(i, j, 1,1);
@@ -53,8 +53,8 @@ public class WarZone extends JPanel{
 				//g.drawRect(150, 150, 700, 700);
 			}
 		}
-		
-		g.setColor(Color.BLACK);
+		System.out.println("Nb of States : " + terrainGenerator.getAllStates().size());
+		g.setColor(Color.WHITE);
 		for(State s : terrainGenerator.getAllStates())
 		{
 			for(int[] c : s.getBoundaries())
