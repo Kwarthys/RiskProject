@@ -248,18 +248,51 @@ public class Terrain {
 			noVoisins.add(smallerState);
 			return;
 		}
-		smallerIndex = 0;
-		smallerSize = smallerState.getNeighbours().get(0).size();
-		for(int i = 0; i < smallerState.getNeighbours().size(); i++)
+		State otherState;
+		if(allStates.size()>2000)
 		{
-			if(smallerSize > smallerState.getNeighbours().get(i).size());
+			smallerIndex = 0;
+			smallerSize = smallerState.getNeighbours().get(0).size();
+			for(int i = 0; i < smallerState.getNeighbours().size(); i++)
 			{
-				smallerSize = smallerState.getNeighbours().get(i).size();
-				smallerIndex = i;
+				if(smallerSize > smallerState.getNeighbours().get(i).size());
+				{
+					smallerSize = smallerState.getNeighbours().get(i).size();
+					smallerIndex = i;
+				}
 			}
+			
+			otherState = smallerState.getNeighbours().get(smallerIndex);
+		}
+		else
+		{
+			ArrayList<Integer> count = new ArrayList<>(); 
+			for(int i = 0; i < smallerState.getNeighbours().size(); i++)
+			{
+				count.add(i,0);
+				for(int[] c : smallerState.getBoundaries())
+				{
+					if(getVoisins(c[0], c[1], smallerState.getNeighbours().get(i).getID()).size() != 0)
+					{
+						count.set(i,count.get(i)+1);
+					}
+				}
+			}
+			smallerIndex = 0;
+			int biggerBoundaries = count.get(0);
+			for(int i = 0; i < count.size(); i++)
+			{
+				if(biggerBoundaries < count.get(i))
+				{
+					smallerIndex = i;
+					biggerBoundaries = count.get(i);
+				}
+			}
+			
+			otherState = smallerState.getNeighbours().get(smallerIndex);
 		}
 		
-		stateFusion(smallerState,smallerState.getNeighbours().get(smallerIndex));
+		stateFusion(smallerState,otherState);
 		
 	}
 	
