@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
+
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
@@ -9,7 +11,7 @@ public class WarZone extends JPanel{
 	
 	private Terrain terrainGenerator;
 	
-	public WarZone()
+	public WarZone(JFrame pparent)
 	{
 		super();
 		
@@ -26,12 +28,28 @@ public class WarZone extends JPanel{
 		}
 		moy/=i;
 		System.out.println(moy);
+		
 	}
-	
+	/*
+	public void start(JFrame parent)
+	{
+		parent.repaint();
+		while(terrainGenerator.nextMerge())
+		{
+			parent.repaint();
+			try{
+				Thread.sleep(300);
+			}catch(InterruptedException e){
+				e.printStackTrace();
+			}
+		}
+	}
+	*/
 	
 	
 	public void paintComponent(Graphics g)
-	{		
+	{
+		//System.out.println("Painting");
 		int stateMaxID = 0;
 		for(int i = 0; i < terrainGenerator.getAllStates().size();i++)
 			stateMaxID = Math.max(stateMaxID, terrainGenerator.getAllStates().get(i).getID());
@@ -61,8 +79,6 @@ public class WarZone extends JPanel{
 			{
 				g.fillRect(c[1], c[0], 1,1);
 			}
-		}
-		
-		
+		}		
 	}
 }

@@ -42,6 +42,7 @@ public class Terrain {
 		System.out.println("States Created in " + (new Date().getTime() - startStates.getTime()) + "ms\n Merging States...");
 
 		Date startMerge = new Date();
+		
 		while(allStates.size() > 45)
 			mergeStates();
 
@@ -50,7 +51,14 @@ public class Terrain {
 		
 		return map1;
 	}
-
+	/*
+	public boolean nextMerge()
+	{
+		mergeStates();
+		//System.out.println("Game would continue merging : " + allStates.size());
+		return (allStates.size() > 45);
+	}
+*/
 	private void generate()
 	{
 		int bord = 10;
@@ -223,7 +231,9 @@ public class Terrain {
 		{
 			if(smallerSize > allStates.get(i).size() && !noVoisins.contains(allStates.get(i)))
 			{
+				//System.out.println("Changed from "  + smallerSize);
 				smallerSize = allStates.get(i).size();
+				//System.out.println("       to "  + smallerSize + " at " + i);
 				smallerIndex = i;
 			}
 		}

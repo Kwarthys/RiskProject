@@ -16,7 +16,7 @@ public class RiskFenetre extends JFrame
 		container.setLayout(new BorderLayout());
 		
 		setSize(1050,1050);
-		sim = new WarZone();
+		sim = new WarZone(this);
 		container.add(sim, BorderLayout.CENTER);
 			
 		this.setContentPane(container);
@@ -27,6 +27,7 @@ public class RiskFenetre extends JFrame
 		setLocationRelativeTo(null);		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		go();
+		//sim.start(this);
 	}
 		
 	private void go()
