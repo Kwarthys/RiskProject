@@ -42,6 +42,7 @@ public class Terrain {
 		System.out.println("States Created in " + (new Date().getTime() - startStates.getTime()) + "ms\n Merging States...");
 
 		Date startMerge = new Date();
+		
 		while(allStates.size() > 45)
 			mergeStates();
 
@@ -50,7 +51,14 @@ public class Terrain {
 		
 		return map1;
 	}
-
+	/*
+	public boolean nextMerge()
+	{
+		mergeStates();
+		//System.out.println("Game would continue merging : " + allStates.size());
+		return (allStates.size() > 45);
+	}
+*/
 	private void generate()
 	{
 		int bord = 10;
@@ -223,7 +231,9 @@ public class Terrain {
 		{
 			if(smallerSize > allStates.get(i).size() && !noVoisins.contains(allStates.get(i)))
 			{
+				//System.out.println("Changed from "  + smallerSize);
 				smallerSize = allStates.get(i).size();
+				//System.out.println("       to "  + smallerSize + " at " + i);
 				smallerIndex = i;
 			}
 		}
@@ -248,51 +258,18 @@ public class Terrain {
 			noVoisins.add(smallerState);
 			return;
 		}
-		State otherState;
-		if(allStates.size()>2000)
+		smallerIndex = 0;
+		smallerSize = smallerState.getNeighbours().get(0).size();
+		for(int i = 0; i < smallerState.getNeighbours().size(); i++)
 		{
-			smallerIndex = 0;
-			smallerSize = smallerState.getNeighbours().get(0).size();
-			for(int i = 0; i < smallerState.getNeighbours().size(); i++)
+			if(smallerSize > smallerState.getNeighbours().get(i).size());
 			{
-				if(smallerSize > smallerState.getNeighbours().get(i).size());
-				{
-					smallerSize = smallerState.getNeighbours().get(i).size();
-					smallerIndex = i;
-				}
+				smallerSize = smallerState.getNeighbours().get(i).size();
+				smallerIndex = i;
 			}
-			
-			otherState = smallerState.getNeighbours().get(smallerIndex);
-		}
-		else
-		{
-			ArrayList<Integer> count = new ArrayList<>(); 
-			for(int i = 0; i < smallerState.getNeighbours().size(); i++)
-			{
-				count.add(i,0);
-				for(int[] c : smallerState.getBoundaries())
-				{
-					if(getVoisins(c[0], c[1], smallerState.getNeighbours().get(i).getID()).size() != 0)
-					{
-						count.set(i,count.get(i)+1);
-					}
-				}
-			}
-			smallerIndex = 0;
-			int biggerBoundaries = count.get(0);
-			for(int i = 0; i < count.size(); i++)
-			{
-				if(biggerBoundaries < count.get(i))
-				{
-					smallerIndex = i;
-					biggerBoundaries = count.get(i);
-				}
-			}
-			
-			otherState = smallerState.getNeighbours().get(smallerIndex);
 		}
 		
-		stateFusion(smallerState,otherState);
+		stateFusion(smallerState,smallerState.getNeighbours().get(smallerIndex));
 		
 	}
 	

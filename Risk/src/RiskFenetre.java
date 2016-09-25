@@ -27,6 +27,7 @@ public class RiskFenetre extends JFrame
 		setLocationRelativeTo(null);		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		go();
+		//sim.start(this);
 	}
 		
 	private void go()
