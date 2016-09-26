@@ -245,7 +245,7 @@ public class Terrain {
 		}
 		if(smallerState.getNeighbours().size() == 0)
 		{
-			noVoisins.add(smallerState);
+			smallIslandMerge(smallerState);
 			return;
 		}
 		State otherState;
@@ -296,6 +296,31 @@ public class Terrain {
 		
 	}
 	
+	private void smallIslandMerge(State s)
+	{
+		double smallerDistance = Float.POSITIVE_INFINITY;
+		State closestState = s;
+		for(State n : allStates)
+		{
+			if(s!=n)
+			{
+				for(int[] p1 : s.getBoundaries())
+				{
+					for(int[] p2 : n.getBoundaries())
+					{
+						if(getDistance(p1,p2) < smallerDistance)
+						{
+							if(n!=closestState)closestState = n;
+							smallerDistance = getDistance(p1,p2);
+						}
+					}
+				}
+			}
+		}
+		
+		stateFusion(s, closestState);
+	}
+	
 	private void stateFusion(State s1, State s2)
 	{
 		State biggerIDState, lowerIDState;
@@ -332,5 +357,15 @@ public class Terrain {
 				s.addToBoundaries(c);
 			}
 		}
+	}
+	
+	static public double getDistance(int x1, int y1, int x2, int y2)
+	{
+		return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+	}
+	
+	static public double getDistance(int[] p1, int[] p2)
+	{
+		return getDistance(p1[0], p1[1], p2[0], p2[1]);
 	}
 }

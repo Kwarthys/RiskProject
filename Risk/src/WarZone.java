@@ -40,11 +40,11 @@ public class WarZone extends JPanel{
 		{
 			for(int i = 0; i < 1000;i++)
 			{
-				if(map[j][i] == -1)g.setColor(Color.WHITE);
-				else if(map[j][i] == 0)g.setColor(Color.BLACK);
+				if(map[j][i] == -1)g.setColor(Color.BLACK);
+				else if(map[j][i] == 0)g.setColor(new Color(0x6F,0x91,0xD1));//Seas
 				else 
 				{
-					g.setColor(new Color(100+(int)(Math.pow(map[j][i],8)%156), 100+(int)(Math.pow(map[j][i],6)%156) ,255-(int)(Math.pow(map[j][i],7)%200)));
+					g.setColor(new Color(150+(int)(Math.pow(map[j][i],8)%105), (int)(Math.pow(map[j][i],6)%156) ,10+(int)(Math.pow(map[j][i],7)%150)));
 				}
 				
 				g.fillRect(i, j, 1,1);
@@ -54,7 +54,7 @@ public class WarZone extends JPanel{
 			}
 		}
 		System.out.println("Nb of States : " + terrainGenerator.getAllStates().size());
-		g.setColor(Color.WHITE);
+		g.setColor(Color.BLACK);
 		for(State s : terrainGenerator.getAllStates())
 		{
 			for(int[] c : s.getBoundaries())
