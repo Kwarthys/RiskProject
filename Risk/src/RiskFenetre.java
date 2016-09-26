@@ -22,7 +22,7 @@ public class RiskFenetre extends JFrame
 		this.setContentPane(container);
 		setVisible(true);	
 			
-		System.out.println("lancement !");
+		//System.out.println("lancement !");
 		
 		setLocationRelativeTo(null);		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -35,7 +35,7 @@ public class RiskFenetre extends JFrame
 		boolean go = true;
 		while(go)
 		{
-			System.out.println("ça tourne");
+			//System.out.println("ça tourne");
 			repaint();
 			try{
 				Thread.sleep(20);
