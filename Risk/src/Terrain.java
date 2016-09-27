@@ -37,13 +37,13 @@ public class Terrain {
 		System.out.println("Generated in " + (new Date().getTime() - startTime.getTime()) + "ms\nCreating States...");
 		
 		Date startStates = new Date();
-		drawStates();
+		//drawStates();
 
 		System.out.println("States Created in " + (new Date().getTime() - startStates.getTime()) + "ms\n Merging States...");
 
 		Date startMerge = new Date();
-		while(allStates.size() > 45)
-			mergeStates();
+		//while(allStates.size() > 45)
+		//	mergeStates();
 
 		System.out.println("States merged in " + (new Date().getTime() - startMerge.getTime()) + "ms.");
 		System.out.println("OverAll generation in " + (new Date().getTime() - startTime.getTime()) + "ms.");
