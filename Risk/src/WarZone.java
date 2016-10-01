@@ -16,18 +16,6 @@ public class WarZone extends JPanel{
 		terrainGenerator = new Terrain(1000,1000, Math.random()*10);
 		
 		map = terrainGenerator.generateMap();
-		/*
-		int moy = 0;
-		int i = 0;
-		for(State s : terrainGenerator.getAllStates())
-		{
-			moy+=s.size();i++;
-			//System.out.println(s.size());
-		}
-		moy/=i;
-		//System.out.println(moy);
-		 * 
-		 */
 	}
 	
 	
