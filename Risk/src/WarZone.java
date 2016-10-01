@@ -13,7 +13,7 @@ public class WarZone extends JPanel{
 	{
 		super();
 		
-		terrainGenerator = new Terrain(1000,1000);
+		terrainGenerator = new Terrain(1000,1000, Math.random()*10);
 		
 		map = terrainGenerator.generateMap();
 		/*
