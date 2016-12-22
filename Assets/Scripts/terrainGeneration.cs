@@ -309,7 +309,9 @@ public class terrainGeneration : MonoBehaviour {
         {
             int[] center = s.computeCenter();
 
-            Instantiate(city, new Vector3(center[1]*2, _HeightMap[center[0],center[1]]*200 , center[0]*2), Quaternion.identity);;
+            float localHeight = _HeightMap[center[0], center[1]];
+
+            Instantiate(city, new Vector3(center[1]*2, localHeight * 200f , center[0]*2), Quaternion.identity); //Floating cities linked to the steepness of the terrain
         }
     }
 
@@ -500,22 +502,22 @@ public class terrainGeneration : MonoBehaviour {
     {
         _alphaMap = new float[t.terrainData.alphamapHeight, t.terrainData.alphamapWidth,3];
         Texture2D texture = new Texture2D(t.terrainData.alphamapHeight, t.terrainData.alphamapWidth);
-        for(int j = 0; j < t.terrainData.alphamapHeight; j++)
+
+        bool b = true;
+
+        for (int j = 0; j < t.terrainData.alphamapHeight; j++)
         {
             for (int i = 0; i < t.terrainData.alphamapWidth; i++)
             {
-                bool b = true;
-                if (j > t.terrainData.alphamapHeight) b = false;
-                if (i > t.terrainData.alphamapWidth) b = false;
-
+                /***************************OLD FASHION PAINTING*****
                 if (map[j, i] == 0)
                 {
                     texture.SetPixel(i, j, Color.cyan);
                     if (b)
                     {
-                        _alphaMap[j, i, 0] = 0;
-                        _alphaMap[j, i, 1] = 0.5f;
-                        _alphaMap[j, i, 2] = 0.5f;
+                        _alphaMap[j, i, 0] = 0;         //Grass
+                        _alphaMap[j, i, 1] = 0.5f;      //Sand
+                        _alphaMap[j, i, 2] = 0.5f;      //Color
                     }
                 }
                 else
@@ -527,6 +529,41 @@ public class terrainGeneration : MonoBehaviour {
                         _alphaMap[j, i, 2] = 0.5f;
                     }
                     texture.SetPixel(i, j, new Color((100 + Mathf.Pow(map[j, i], 8) % 155) / 255, (Mathf.Pow(map[j, i], 10) % 255) / 255, (Mathf.Pow(map[j, i], 6) % 255) / 255));
+                }
+                */
+                //Painting terrain colors on state ID
+                _alphaMap[j, i, 2] = 0.5f;
+                if (map[j, i] != 0)
+                {
+                    texture.SetPixel(i, j, new Color((100 + Mathf.Pow(map[j, i], 8) % 155) / 255, (Mathf.Pow(map[j, i], 10) % 255) / 255, (Mathf.Pow(map[j, i], 6) % 255) / 255));
+                }
+                else
+                {
+                    texture.SetPixel(i, j, Color.cyan);
+                }
+
+                //Applying textures depending on heights
+                float SEUIL_INF = 0.47f, SEUIL_SUP = 0.58f;
+                if (_HeightMap[j, i] < SEUIL_INF) //Lower Sea
+                {
+                    _alphaMap[j, i, 0] = 0;         //Grass
+                    _alphaMap[j, i, 1] = 0.5f;      //Sand                    
+                }
+                else if (_HeightMap[j, i] < SEUIL_SUP) //shore
+                {
+                    _alphaMap[j, i, 0] = (1 / (SEUIL_SUP - SEUIL_INF) * _HeightMap[j, i] - SEUIL_INF / (SEUIL_SUP - SEUIL_INF)) / 2;
+                    _alphaMap[j, i, 1] = (1 / (SEUIL_INF - SEUIL_SUP) * _HeightMap[j, i] - SEUIL_SUP / (SEUIL_INF - SEUIL_SUP)) / 2;
+
+                    if (b)
+                    {
+                        print(_alphaMap[j, i, 0] + " and " + _alphaMap[j, i, 1] + " --> sum = " + (_alphaMap[j, i, 0] + _alphaMap[j, i, 1]));
+                        b = false;
+                    }
+                }
+                else //High land
+                {
+                    _alphaMap[j, i, 0] = 0.5f;
+                    _alphaMap[j, i, 1] = 0;
                 }
             }
         }
