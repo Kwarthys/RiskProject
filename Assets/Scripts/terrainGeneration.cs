@@ -543,7 +543,7 @@ public class terrainGeneration : MonoBehaviour {
                 }
 
                 //Applying textures depending on heights
-                float SEUIL_INF = 0.47f, SEUIL_SUP = 0.58f;
+                float SEUIL_INF = 0.51f, SEUIL_SUP = 0.54f;
                 if (_HeightMap[j, i] < SEUIL_INF) //Lower Sea
                 {
                     _alphaMap[j, i, 0] = 0;         //Grass
