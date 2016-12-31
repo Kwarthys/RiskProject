@@ -29,9 +29,9 @@ public class terrainGeneration : MonoBehaviour {
         while (allStates.Count > NBMAXSTATE)
             mergeStates();
 
-        buildCities();
-
         manageSeaRoads();
+
+        buildCities();
 
         SplatPrototype hardcodedSplat1 = t.terrainData.splatPrototypes[0];
         SplatPrototype hardcodedSplat2 = t.terrainData.splatPrototypes[1];
@@ -152,6 +152,7 @@ public class terrainGeneration : MonoBehaviour {
             }
         }
         s = stateFusion(s, closestState);
+        print("InterState Road Created");
         s.addRoad(new SeaRoad(ps[0], ps[1], s, s));
     }
 
@@ -305,14 +306,35 @@ public class terrainGeneration : MonoBehaviour {
 
     private void buildCities()
     {
-        foreach(State s in allStates)
+        ArrayList drawnRoads = new ArrayList(); //preventing to draw each road twice
+
+        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+        foreach (State s in allStates)
         {
             int[] center = s.computeCenter();
 
             float localHeight = _HeightMap[center[0], center[1]];
 
-            Instantiate(city, new Vector3(center[1]*2, localHeight * 200f , center[0]*2), Quaternion.identity); //Floating cities linked to the steepness of the terrain
+            Instantiate(city, new Vector3(center[1]*2f, localHeight * 200f , center[0]*2f), Quaternion.identity); //Floating cities issue seems linked to the steepness of the terrain
+
+            //Building sea roads form
+            ArrayList roads = s.getRoads();
+            foreach(SeaRoad sr in roads)
+            {
+                if(!drawnRoads.Contains(sr))
+                {
+                    drawnRoads.Add(sr);
+                    int[][] points = sr.getLimits();
+                    //print(points[0][0] + " " + points[0][1] + " " + points[1][0] + " " + points[1][1]);
+
+                    Instantiate(cube, new Vector3(points[0][1] * 2f, 110, points[0][0] * 2f), Quaternion.identity);
+                    Instantiate(cube, new Vector3(points[1][1] * 2f, 110, points[1][0] * 2f), Quaternion.identity);
+                }
+            }
         }
+
+        print("Drawn Roads : " + drawnRoads.Count);
     }
 
     /****************************** SEA ROADS MANAGEMENT *************************************************/
@@ -368,12 +390,15 @@ public class terrainGeneration : MonoBehaviour {
 
             n = 0;
             foreach (ArrayList list in entireList) n += list.Count;
+            print("Error : " + (n - allStates.Count));
             if (exit) break;
         }
         
         /****************************************************/
 
         ArrayList finalRoads = new ArrayList();
+
+        print("Number of continents : " + entireList.Count);
 
         foreach (ArrayList continent in entireList)
         {
@@ -457,6 +482,7 @@ public class terrainGeneration : MonoBehaviour {
         //System.out.println(ps[0][1] + " " + ps[0][0] + " " + ps[1][1] + " " + ps[1][0]);
         if (smallerDistance > 0 && s != closestState)
         {
+            print("Road Created");
             SeaRoad sr = new SeaRoad(ps[0], ps[1], s, closestState);
             s.addRoad(sr);
             closestState.addRoad(sr);
