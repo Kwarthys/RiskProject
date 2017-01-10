@@ -31,7 +31,7 @@ public class terrainGeneration : MonoBehaviour {
 
         manageSeaRoads();
 
-        buildCities();
+        buildFacilities();
 
         SplatPrototype hardcodedSplat1 = t.terrainData.splatPrototypes[0];
         SplatPrototype hardcodedSplat2 = t.terrainData.splatPrototypes[1];
@@ -304,7 +304,7 @@ public class terrainGeneration : MonoBehaviour {
     }
 
 
-    private void buildCities()
+    private void buildFacilities()
     {
         ArrayList drawnRoads = new ArrayList(); //preventing to draw each road twice
 
@@ -316,7 +316,7 @@ public class terrainGeneration : MonoBehaviour {
 
             float localHeight = _HeightMap[center[0], center[1]];
 
-            Instantiate(city, new Vector3(center[1]*2f, localHeight * 200f , center[0]*2f), Quaternion.identity); //Floating cities issue seems linked to the steepness of the terrain
+            Instantiate(city, new Vector3(center[1]*2f, 210, center[0]*2f), Quaternion.identity); //Floating cities issue seems linked to the steepness of the terrain
 
             //Building sea roads form
             ArrayList roads = s.getRoads();
