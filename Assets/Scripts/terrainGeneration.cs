@@ -50,6 +50,11 @@ public class terrainGeneration : MonoBehaviour {
 
     }
 
+    void OnMouseDown()
+    {
+
+    }
+
     private void generateTerrain()
     {
 
@@ -316,7 +321,7 @@ public class terrainGeneration : MonoBehaviour {
 
             float localHeight = _HeightMap[center[0], center[1]];
 
-            Instantiate(city, new Vector3(center[1]*2f, 210, center[0]*2f), Quaternion.identity); //Floating cities issue seems linked to the steepness of the terrain
+            Instantiate(city, new Vector3(center[1]*2f, 210, center[0]*2f), Quaternion.identity, t.transform); //Floating cities issue seems linked to the steepness of the terrain
 
             //Building sea roads form
             ArrayList roads = s.getRoads();
@@ -328,8 +333,8 @@ public class terrainGeneration : MonoBehaviour {
                     int[][] points = sr.getLimits();
                     //print(points[0][0] + " " + points[0][1] + " " + points[1][0] + " " + points[1][1]);
 
-                    Instantiate(cube, new Vector3(points[0][1] * 2f, 110, points[0][0] * 2f), Quaternion.identity);
-                    Instantiate(cube, new Vector3(points[1][1] * 2f, 120, points[1][0] * 2f), Quaternion.identity);
+                    Instantiate(cube, new Vector3(points[0][1] * 2f, 110, points[0][0] * 2f), Quaternion.identity, t.transform);
+                    Instantiate(cube, new Vector3(points[1][1] * 2f, 120, points[1][0] * 2f), Quaternion.identity, t.transform);
 
                     float dz = points[1][0] - points[0][0], dx = points[1][1] - points[0][1];
 
@@ -358,7 +363,7 @@ public class terrainGeneration : MonoBehaviour {
                         }
                     }
 
-                    GameObject bridge = Instantiate(cube, new Vector3(points[1][1] + points[0][1], 100, points[1][0] + points[0][0]), Quaternion.identity) as GameObject;
+                    GameObject bridge = Instantiate(cube, new Vector3(points[1][1] + points[0][1], 100, points[1][0] + points[0][0]), Quaternion.identity, t.transform) as GameObject;
                     bridge.transform.localScale += new Vector3(2*(float)sr.size(), 0, 0);
                     bridge.transform.Rotate(new Vector3(0, Mathf.Rad2Deg * Mathf.Abs(angle), 0));
                 }
