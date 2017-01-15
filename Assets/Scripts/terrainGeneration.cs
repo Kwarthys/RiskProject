@@ -50,11 +50,6 @@ public class terrainGeneration : MonoBehaviour {
 
     }
 
-    void OnMouseDown()
-    {
-
-    }
-
     private void generateTerrain()
     {
 
@@ -336,36 +331,11 @@ public class terrainGeneration : MonoBehaviour {
                     Instantiate(cube, new Vector3(points[0][1] * 2f, 110, points[0][0] * 2f), Quaternion.identity, t.transform);
                     Instantiate(cube, new Vector3(points[1][1] * 2f, 120, points[1][0] * 2f), Quaternion.identity, t.transform);
 
-                    float dz = points[1][0] - points[0][0], dx = points[1][1] - points[0][1];
-
-                    float angle;
-
-                    if(dz > 0)
-                    {
-                        if(dx > 0)
-                        {
-                            angle = - Mathf.Asin(Mathf.Abs(dz) / (float)sr.size());
-                        }
-                        else
-                        {
-                            angle = Mathf.Asin(Mathf.Abs(dz) / (float)sr.size()) + Mathf.PI;
-                        }
-                    }
-                    else
-                    {
-                        if (dx > 0)
-                        {
-                            angle = Mathf.Asin(Mathf.Abs(dz) / (float)sr.size());
-                        }
-                        else
-                        {
-                            angle = Mathf.Asin(Mathf.Abs(dx) / (float)sr.size()) + Mathf.PI / 2;
-                        }
-                    }
+                    float angle = MyMaths.getAngle(points[0][1], points[0][0], points[1][1], points[1][0]);
 
                     GameObject bridge = Instantiate(cube, new Vector3(points[1][1] + points[0][1], 100, points[1][0] + points[0][0]), Quaternion.identity, t.transform) as GameObject;
                     bridge.transform.localScale += new Vector3(2*(float)sr.size(), 0, 0);
-                    bridge.transform.Rotate(new Vector3(0, Mathf.Rad2Deg * Mathf.Abs(angle), 0));
+                    bridge.transform.Rotate(new Vector3(0, angle, 0));
                 }
             }
         }

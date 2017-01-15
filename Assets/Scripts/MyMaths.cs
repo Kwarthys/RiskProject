@@ -22,4 +22,39 @@ public class MyMaths{
     {
         return getDistance(p1[0], p1[1], p2[0], p2[1]);
     }
+
+    static public float getAngle(int x1, int y1, int x2, int y2)
+    {
+
+        float dy = y2 - y1, dx = x2 - x1;
+
+        float length = getDistance(x1, y1, x2, y2);
+
+        float angle;
+
+        if (dy > 0)
+        {
+            if (dx > 0)
+            {
+                angle = -Mathf.Asin(Mathf.Abs(dy) / (float)length);
+            }
+            else
+            {
+                angle = Mathf.Asin(Mathf.Abs(dy) / (float)length) + Mathf.PI;
+            }
+        }
+        else
+        {
+            if (dx > 0)
+            {
+                angle = Mathf.Asin(Mathf.Abs(dy) / (float)length);
+            }
+            else
+            {
+                angle = Mathf.Asin(Mathf.Abs(dx) / (float)length) + Mathf.PI / 2;
+            }
+        }
+
+        return angle*Mathf.Rad2Deg;
+    }
 }
