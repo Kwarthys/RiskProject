@@ -20,13 +20,14 @@ public class TankDriver : MonoBehaviour {
 
     private int state = 0;
 
-    private Vector2 pos;
+    private Vector2 pos, oldPos;
 
     /************* INITIALIZATION *************/
 
 	void Start () {
         registerParts();
         registerWheels();
+        this.transform.GetComponent<Rigidbody>().centerOfMass = (this.transform.Find("CenterOfMass").localPosition);
     }
 
     private void registerWheels()
@@ -49,6 +50,11 @@ public class TankDriver : MonoBehaviour {
 
     void FixedUpdate()
     {
+        oldPos.x = pos.x;
+        oldPos.y = pos.y;
+        pos.x = this.transform.position.x;
+        pos.y = this.transform.position.z;
+
         //stateMachine();
         reachTarget();
 
@@ -59,8 +65,6 @@ public class TankDriver : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        pos.x = this.transform.position.x;
-        pos.y = this.transform.position.z;
 
         turret.Rotate(new Vector3(0,0,0.2f));
 
@@ -79,10 +83,14 @@ public class TankDriver : MonoBehaviour {
     {
         float distanceToTarget = MyMaths.getDistance((int)pos.x, (int)pos.y, (int)target.x, (int)target.y);
 
+        float speed = MyMaths.getDistance(oldPos.x, oldPos.y, pos.x, pos.y) / Time.deltaTime;
+
+        print("Tank Speed : " + speed + ". Distance Ran : " + MyMaths.getDistance(oldPos.x, oldPos.y, pos.x, pos.y) + ". DeltaTime : " + Time.deltaTime);
+
         if (distanceToTarget < 5)
         {
             brakeWheels();
-            print("Target Reached");
+            //print("Target Reached");
             return;
         }
         else { freeWheels(); }
@@ -120,7 +128,7 @@ public class TankDriver : MonoBehaviour {
 
     private void goForward(float command)
     {
-        print("command : " + (-Mathf.Clamp(command * 10, 50, 1000)));
+        //print("command : " + (-Mathf.Clamp(command * 10, 50, 1000)));
         foreach(WheelCollider w in wheels)
         {
             w.motorTorque = - Mathf.Clamp(command*10, 50, 1000);

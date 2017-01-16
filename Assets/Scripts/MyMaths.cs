@@ -18,6 +18,11 @@ public class MyMaths{
         return Mathf.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 
+    static public float getDistance(float x1, float y1, float x2, float y2)
+    {
+        return Mathf.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    }
+
     static public float getDistance(int[] p1, int[] p2)
     {
         return getDistance(p1[0], p1[1], p2[0], p2[1]);
