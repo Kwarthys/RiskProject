@@ -20,6 +20,9 @@ public class TankDriver : MonoBehaviour {
 
     private int state = 0;
 
+    //private int torqueCommand = 0;
+    private static int MAX_SPEED = 20;
+
     private Vector2 pos, oldPos;
 
     /************* INITIALIZATION *************/
@@ -28,6 +31,11 @@ public class TankDriver : MonoBehaviour {
         registerParts();
         registerWheels();
         this.transform.GetComponent<Rigidbody>().centerOfMass = (this.transform.Find("CenterOfMass").localPosition);
+
+        oldPos.x = pos.x;
+        oldPos.y = pos.y;
+        pos.x = this.transform.position.x;
+        pos.y = this.transform.position.z;
     }
 
     private void registerWheels()
@@ -85,8 +93,6 @@ public class TankDriver : MonoBehaviour {
 
         float speed = MyMaths.getDistance(oldPos.x, oldPos.y, pos.x, pos.y) / Time.deltaTime;
 
-        print("Tank Speed : " + speed + ". Distance Ran : " + MyMaths.getDistance(oldPos.x, oldPos.y, pos.x, pos.y) + ". DeltaTime : " + Time.deltaTime);
-
         if (distanceToTarget < 5)
         {
             brakeWheels();
@@ -97,41 +103,34 @@ public class TankDriver : MonoBehaviour {
 
         /**Calculating steering command**/
 
-        float localAngle = this.transform.localEulerAngles.y > 180 ? this.transform.localEulerAngles.y - 360 : this.transform.localEulerAngles.y;
+        float localAngle = MyMaths.rescaleAngle(this.transform.localEulerAngles.y);
         float angleToTarget = MyMaths.getAngle((int)pos.x, (int)pos.y, (int)target.x, (int)target.y);
         float targetedAngle = angleToTarget - 90;
-        float command = targetedAngle - localAngle; //VALIDATED COMMAND
+        float angleCommand = MyMaths.rescaleAngle(targetedAngle - localAngle);
+
+        //print("AngleCommand " + angleCommand + " .targetedAngle " + targetedAngle + " .localAngle " + localAngle);
+
 
         float MAX_STEERING_ANGLE = 60;
 
-        goForward(distanceToTarget);
-        wheels[0].steerAngle = Mathf.Clamp(command, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                        //frontLeft
-        wheels[1].steerAngle = Mathf.Clamp(command, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                       //frontRight
-        wheels[2].steerAngle = Mathf.Clamp(-command, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                      //backLeft
-        wheels[3].steerAngle = Mathf.Clamp(-command, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                     //backRight
+        wheels[0].steerAngle = Mathf.Clamp(angleCommand, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                      //frontLeft
+        wheels[1].steerAngle = Mathf.Clamp(angleCommand, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                      //frontRight
+        wheels[2].steerAngle = Mathf.Clamp(-angleCommand, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                     //backLeft
+        wheels[3].steerAngle = Mathf.Clamp(-angleCommand, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                     //backRight
 
-        /*
-        wheels[0].motorTorque = 100 + 10 * sideToTurn; //frontLeft
-        wheels[1].motorTorque = 100 + 10 * sideToTurn; //frontRight
-        wheels[2].motorTorque = 100 + 10 * sideToTurn; //backLeft
-        wheels[3].motorTorque = 100 + 10 * sideToTurn; //backRight
-        */
-    }
-    private void stateMachine()
-    {
+        /** Calculating torque command **/
+        float torqueCommand = (MAX_SPEED - speed) * distanceToTarget;
+        print("Torque Command " + torqueCommand + " .speed " + speed + " .distanceToTarget " + distanceToTarget);
 
-        for(int i = 0; i < 4; i++)
-        {
-            wheels[i].motorTorque = torques[i];
-        }
+        goForward(-torqueCommand);
+
     }
 
     private void goForward(float command)
     {
-        //print("command : " + (-Mathf.Clamp(command * 10, 50, 1000)));
         foreach(WheelCollider w in wheels)
         {
-            w.motorTorque = - Mathf.Clamp(command*10, 50, 1000);
+            w.motorTorque = command;
         }
     }
 

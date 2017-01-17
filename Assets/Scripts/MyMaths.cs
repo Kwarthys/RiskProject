@@ -60,6 +60,11 @@ public class MyMaths{
             }
         }
 
-        return angle*Mathf.Rad2Deg;
+        return rescaleAngle(angle*Mathf.Rad2Deg);
+    }
+
+    public static float rescaleAngle(float a)
+    {
+        return a > 180 ? a - 360 : a < -180 ? a + 360 : a;
     }
 }

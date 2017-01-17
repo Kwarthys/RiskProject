@@ -541,28 +541,6 @@ public class terrainGeneration : MonoBehaviour {
         {
             for (int i = 0; i < t.terrainData.alphamapWidth; i++)
             {
-                /***************************OLD FASHION PAINTING*****
-                if (map[j, i] == 0)
-                {
-                    texture.SetPixel(i, j, Color.cyan);
-                    if (b)
-                    {
-                        _alphaMap[j, i, 0] = 0;         //Grass
-                        _alphaMap[j, i, 1] = 0.5f;      //Sand
-                        _alphaMap[j, i, 2] = 0.5f;      //Color
-                    }
-                }
-                else
-                {
-                    if (b)
-                    {
-                        _alphaMap[j, i, 0] = 0.5f;
-                        _alphaMap[j, i, 1] = 0;
-                        _alphaMap[j, i, 2] = 0.5f;
-                    }
-                    texture.SetPixel(i, j, new Color((100 + Mathf.Pow(map[j, i], 8) % 155) / 255, (Mathf.Pow(map[j, i], 10) % 255) / 255, (Mathf.Pow(map[j, i], 6) % 255) / 255));
-                }
-                */
                 //Painting terrain colors on state ID
                 _alphaMap[j, i, 2] = 0.5f;
                 if (map[j, i] != 0)
@@ -597,6 +575,15 @@ public class terrainGeneration : MonoBehaviour {
                     _alphaMap[j, i, 0] = 0.5f;
                     _alphaMap[j, i, 1] = 0;
                 }
+            }
+        }
+
+        foreach(State s in allStates)
+        {
+            ArrayList bounds = s.getBoundaries();
+            foreach(int[] p in bounds)
+            {
+                texture.SetPixel(p[1], p[0], Color.black);
             }
         }
 
