@@ -8,6 +8,11 @@ public class TankDriver : MonoBehaviour {
     public bool brake = false;
     private bool braked = false;
 
+    /**********Folowing FPSController************/
+    public bool followFPS = false;
+    public GameObject fps;    
+    /********************************************/
+
     public Vector2 target = new Vector2(512, 512);
 
     // Use this for initialization
@@ -58,6 +63,12 @@ public class TankDriver : MonoBehaviour {
 
     void FixedUpdate()
     {
+        if(followFPS)
+        {
+            target.x = fps.transform.position.x;
+            target.y = fps.transform.position.z;
+        }
+
         oldPos.x = pos.x;
         oldPos.y = pos.y;
         pos.x = this.transform.position.x;
@@ -119,8 +130,9 @@ public class TankDriver : MonoBehaviour {
         wheels[3].steerAngle = Mathf.Clamp(-angleCommand, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                     //backRight
 
         /** Calculating torque command **/
-        float torqueCommand = (MAX_SPEED - speed) * distanceToTarget;
-        print("Torque Command " + torqueCommand + " .speed " + speed + " .distanceToTarget " + distanceToTarget);
+        float distCommand = distanceToTarget > 30 ? 1 : distanceToTarget/30;
+        float torqueCommand = (MAX_SPEED - speed) * 80 * distCommand * distCommand;
+        //print("Torque Command " + torqueCommand + " .speed " + speed + " .distanceToTarget " + distanceToTarget);
 
         goForward(-torqueCommand);
 
