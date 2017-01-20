@@ -122,7 +122,7 @@ public class TankDriver : MonoBehaviour {
         //print("AngleCommand " + angleCommand + " .targetedAngle " + targetedAngle + " .localAngle " + localAngle);
 
 
-        float MAX_STEERING_ANGLE = 60;
+        float MAX_STEERING_ANGLE = 45;
 
         wheels[0].steerAngle = Mathf.Clamp(angleCommand, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                      //frontLeft
         wheels[1].steerAngle = Mathf.Clamp(angleCommand, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                      //frontRight
@@ -130,9 +130,11 @@ public class TankDriver : MonoBehaviour {
         wheels[3].steerAngle = Mathf.Clamp(-angleCommand, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);                     //backRight
 
         /** Calculating torque command **/
-        float distCommand = distanceToTarget > 30 ? 1 : distanceToTarget/30;
-        float torqueCommand = (MAX_SPEED - speed) * 80 * distCommand * distCommand;
-        //print("Torque Command " + torqueCommand + " .speed " + speed + " .distanceToTarget " + distanceToTarget);
+
+        float distCmd = distanceToTarget > MAX_SPEED ? MAX_SPEED : distanceToTarget-5;
+        float torqueCommand = (distCmd - speed) * 80;
+
+        //print("Torque Command " + torqueCommand + " .speed " + speed + " .distCmd " + distCmd);
 
         goForward(-torqueCommand);
 

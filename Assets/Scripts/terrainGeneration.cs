@@ -1,16 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class terrainGeneration : MonoBehaviour {
 
     public Transform city;
 
 
-    private Terrain t;
+    /************* CHUNKS ***************/
+    public Vector2 chunkNumber = new Vector2(100,100);
+    public Vector2 chunkSize = new Vector2(16,16);
+
+    public GameObject chunk;
+
+    private GameObject[,] allChunks;
+    /************************************/
+
     private float[,] map1, map2, _HeightMap;
     private int _width, _height;
 
-    private int NBMAXSTATE = 40;
+    private int MAX_HEIGHT = 200;
+    private int NBMAXSTATE = 50;
 
     private float[,,] _alphaMap;
 
@@ -18,10 +28,16 @@ public class terrainGeneration : MonoBehaviour {
 
     private ArrayList allStates = new ArrayList();
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
+        _width = (int)(chunkNumber.x * chunkSize.x); _height = (int)(chunkNumber.y * chunkSize.y);
+        _HeightMap = new float[_width, _height];
+        map1 = new float[_width, _height];
+        map2 = new float[_width, _height];
 
         generateTerrain();
 
+        /*
         drawStates();
 
         //testMap(map1);
@@ -32,6 +48,8 @@ public class terrainGeneration : MonoBehaviour {
         manageSeaRoads();
 
         buildFacilities();
+        */
+        /*
 
         SplatPrototype hardcodedSplat1 = t.terrainData.splatPrototypes[0];
         SplatPrototype hardcodedSplat2 = t.terrainData.splatPrototypes[1];
@@ -39,7 +57,7 @@ public class terrainGeneration : MonoBehaviour {
         Texture2D texture = getTextureFrom(map1);
         SplatPrototype sp = new SplatPrototype();
         sp.texture = texture;
-        sp.tileSize = new Vector2(1000,1000);
+        sp.tileSize = new Vector2(t.terrainData.size.x, t.terrainData.size.z); //here 3000 3000
         sp.tileOffset = new Vector2(0, 0);
         SplatPrototype[] sps = new SplatPrototype[3];
         sps[0] = hardcodedSplat1;
@@ -47,74 +65,109 @@ public class terrainGeneration : MonoBehaviour {
         sps[2] = sp;
         t.terrainData.splatPrototypes = sps;
         t.terrainData.SetAlphamaps(0,0,_alphaMap);
-
+        */
     }
 
     private void generateTerrain()
     {
-
-        t = GetComponent<Terrain>();
-        TerrainData TD = t.terrainData;
-
-        _HeightMap = new float[TD.heightmapHeight, TD.heightmapWidth]; 
-
-         _width = TD.heightmapWidth; _height = TD.heightmapHeight;
-        map1 = new float[_height, _width];
-        map2 = new float[_height, _width];
-
-        float[] heights = { 130, 100, 90, 80 };
-
-        float MAX_HEIGHT = 0;
-        for (int i = 0; i < heights.Length; i++)
+        for (int j = 0; j < _height; j++)
         {
-            MAX_HEIGHT += heights[i];
-        }
-
-        for (int j = 0; j < TD.heightmapHeight; j++)
-        {
-            for (int i = 0; i < TD.heightmapWidth; i++)
+            for (int i = 0; i < _width; i++)
             {
-                float noise = 0;
+                float noise = computeHeight(i,j, new Vector2(_width, _height));
 
-                float dwidth = (float)TD.heightmapWidth;
-                float dheight = (float)TD.heightmapHeight;
-
-                float limitInf = 0.2f, limitSup = 1 - limitInf;
-
-                if (i > limitSup * dwidth) noise -= MAX_HEIGHT * (1 - MyMaths.decreasingScale((i - limitSup * dwidth) / (limitInf * dwidth)));
-                //(MAX_HEIGHT - MAX_HEIGHT*(-i/(0.15*dwidth)+(1/0.15)));
-                else if (i < limitInf * dwidth) noise -= MAX_HEIGHT * (1 - MyMaths.increasingScale(i / (limitInf * dwidth)));
-
-
-                if (j > limitSup * dheight) noise -= MAX_HEIGHT * (1 - MyMaths.decreasingScale((j - limitSup * dheight) / (limitInf * dheight)));
-                else if (j < 0.15 * dheight) noise -= MAX_HEIGHT * (1 - MyMaths.increasingScale(j / (limitInf * dheight)));
-
-
-
-
-
-                float x = (float)i; x /= 200;
-                float y = (float)j; y /= 200;
-
-
-                noise += (heights[0] * Mathf.PerlinNoise(x, y));
-                noise += (heights[1] * Mathf.PerlinNoise(x + 10, y + 10));
-                noise += (heights[2] * Mathf.PerlinNoise(x * 2, y * 2));
-                noise += (heights[3] * Mathf.PerlinNoise(x * 2 + 20, y * 2 + 20));
-
-                _HeightMap[j, i] = noise / MAX_HEIGHT;
-
-                if (noise / MAX_HEIGHT > 0.5)
+                if (noise > 0.5)
                     map1[j, i] = 1;
                 else
                     map1[j, i] = 0;
 
                 map2[j, i] = -1;
 
+                _HeightMap[j, i] = noise * MAX_HEIGHT;
             }
         }
-        TD.SetHeights(0, 0, _HeightMap);
+        //HeightMap is constructed
 
+        allChunks = new GameObject[(int)chunkNumber.x, (int)chunkNumber.y];
+        for(int yi = 0; yi < chunkNumber.y; yi++)
+        {
+            for (int xi = 0; xi < chunkNumber.x; xi++)
+            {
+                Mesh mesh = new Mesh();
+                Vector2 chunkStart = new Vector2(xi * (chunkSize.x-1), yi * (chunkSize.y - 1));
+
+                Vector3[] vertices = new Vector3[(int)chunkSize.x * (int)chunkSize.y];
+                List<int> triangles = new List<int>();
+
+                for(int j = 0; j < chunkSize.y; j++)
+                {
+                    for (int i = 0; i < chunkSize.x; i++)
+                    {
+                        vertices[j * (int)chunkSize.x + i] = new Vector3(i + (int)chunkStart.x, _HeightMap[j + (int)chunkStart.y, i + (int)chunkStart.x], j + (int)chunkStart.y);
+
+                        if(j != 0 && i !=0)
+                        {
+                            triangles.Add((j - 1) * (int)chunkSize.x + i - 1);
+                            triangles.Add(j * (int)chunkSize.x + i - 1);
+                            triangles.Add((j - 1) * (int)chunkSize.x + i);
+
+                            triangles.Add((j - 1) * (int)chunkSize.x + i);
+                            triangles.Add(j * (int)chunkSize.x + i - 1);
+                            triangles.Add(j * (int)chunkSize.x + i);
+                        }
+                    }
+                }
+
+
+                mesh.vertices = vertices;
+                mesh.triangles = triangles.ToArray();
+
+                allChunks[xi, yi] = Instantiate(chunk, new Vector3(0,0,0), Quaternion.identity, this.transform) as GameObject;
+
+                allChunks[xi, yi].GetComponent<MeshFilter>().mesh = mesh;
+                allChunks[xi, yi].GetComponent<MeshCollider>().sharedMesh = mesh;
+            }
+        }
+
+
+    }
+
+    private float computeHeight(float i, float j, Vector2 max_size)
+    {
+
+        float[] heights = { 130, 100, 90, 80 };
+
+        float MAX = 0;
+        foreach (int h in heights)
+        {
+            MAX += h;
+        }
+
+        float noise = 0;
+
+        float dwidth = (float)max_size.x;
+        float dheight = (float)max_size.y;
+
+        float limitInf = 0.2f, limitSup = 1 - limitInf;
+
+        if (i > limitSup * dwidth) noise -= MAX * (1 - MyMaths.decreasingScale((i - limitSup * dwidth) / (limitInf * dwidth)));
+        else if (i < limitInf * dwidth) noise -= MAX * (1 - MyMaths.increasingScale(i / (limitInf * dwidth)));
+
+
+        if (j > limitSup * dheight) noise -= MAX * (1 - MyMaths.decreasingScale((j - limitSup * dheight) / (limitInf * dheight)));
+        else if (j < 0.15 * dheight) noise -= MAX * (1 - MyMaths.increasingScale(j / (limitInf * dheight)));
+
+
+        float x = (float)i; x /= 200;
+        float y = (float)j; y /= 200; //200 is experimental
+
+
+        noise += (heights[0] * Mathf.PerlinNoise(x, y));
+        noise += (heights[1] * Mathf.PerlinNoise(x + 10, y + 10));
+        noise += (heights[2] * Mathf.PerlinNoise(x * 2, y * 2));
+        noise += (heights[3] * Mathf.PerlinNoise(x * 2 + 20, y * 2 + 20));
+
+        return noise / MAX;
     }
 
 
@@ -316,7 +369,7 @@ public class terrainGeneration : MonoBehaviour {
 
             float localHeight = _HeightMap[center[0], center[1]];
 
-            Instantiate(city, new Vector3(center[1]*2f, 210, center[0]*2f), Quaternion.identity, t.transform); //Floating cities issue seems linked to the steepness of the terrain
+            Instantiate(city, new Vector3(center[1]*2f, 210, center[0]*2f), Quaternion.identity, this.transform); //Floating cities issue seems linked to the steepness of the terrain
 
             //Building sea roads form
             ArrayList roads = s.getRoads();
@@ -328,12 +381,12 @@ public class terrainGeneration : MonoBehaviour {
                     int[][] points = sr.getLimits();
                     //print(points[0][0] + " " + points[0][1] + " " + points[1][0] + " " + points[1][1]);
 
-                    Instantiate(cube, new Vector3(points[0][1] * 2f, 110, points[0][0] * 2f), Quaternion.identity, t.transform);
-                    Instantiate(cube, new Vector3(points[1][1] * 2f, 120, points[1][0] * 2f), Quaternion.identity, t.transform);
+                    Instantiate(cube, new Vector3(points[0][1] * 2f, 110, points[0][0] * 2f), Quaternion.identity, this.transform);
+                    Instantiate(cube, new Vector3(points[1][1] * 2f, 120, points[1][0] * 2f), Quaternion.identity, this.transform);
 
                     float angle = MyMaths.getAngle(points[0][1], points[0][0], points[1][1], points[1][0]);
 
-                    GameObject bridge = Instantiate(cube, new Vector3(points[1][1] + points[0][1], 100, points[1][0] + points[0][0]), Quaternion.identity, t.transform) as GameObject;
+                    GameObject bridge = Instantiate(cube, new Vector3(points[1][1] + points[0][1], 100, points[1][0] + points[0][0]), Quaternion.identity, this.transform) as GameObject;
                     bridge.transform.localScale += new Vector3(2*(float)sr.size(), 0, 0);
                     bridge.transform.Rotate(new Vector3(0, angle, 0));
                 }
@@ -532,14 +585,14 @@ public class terrainGeneration : MonoBehaviour {
 
     private Texture2D getTextureFrom(float[,]map)
     {
-        _alphaMap = new float[t.terrainData.alphamapHeight, t.terrainData.alphamapWidth,3];
-        Texture2D texture = new Texture2D(t.terrainData.alphamapHeight, t.terrainData.alphamapWidth);
+        _alphaMap = new float[_height,_width,3];
+        Texture2D texture = new Texture2D(_height,_width);
 
         bool b = true;
 
-        for (int j = 0; j < t.terrainData.alphamapHeight; j++)
+        for (int j = 0; j < _height; j++)
         {
-            for (int i = 0; i < t.terrainData.alphamapWidth; i++)
+            for (int i = 0; i < _width; i++)
             {
                 //Painting terrain colors on state ID
                 _alphaMap[j, i, 2] = 0.5f;
