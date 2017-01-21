@@ -6,6 +6,8 @@ public class terrainGeneration : MonoBehaviour {
 
     public Transform city;
 
+    public Material sand, grass;
+
 
     /************* CHUNKS ***************/
     public Vector2 chunkNumber = new Vector2(100,100);
@@ -97,9 +99,11 @@ public class terrainGeneration : MonoBehaviour {
                 Vector2 chunkStart = new Vector2(xi * (chunkSize.x-1), yi * (chunkSize.y - 1));
 
                 Vector3[] vertices = new Vector3[(int)chunkSize.x * (int)chunkSize.y];
-                List<int> triangles = new List<int>();
 
-                for(int j = 0; j < chunkSize.y; j++)
+                List<int> grassTriangles = new List<int>();
+                List<int> sandTriangles = new List<int>();
+
+                for (int j = 0; j < chunkSize.y; j++)
                 {
                     for (int i = 0; i < chunkSize.x; i++)
                     {
@@ -107,23 +111,58 @@ public class terrainGeneration : MonoBehaviour {
 
                         if(j != 0 && i !=0)
                         {
-                            triangles.Add((j - 1) * (int)chunkSize.x + i - 1);
-                            triangles.Add(j * (int)chunkSize.x + i - 1);
-                            triangles.Add((j - 1) * (int)chunkSize.x + i);
+                            if(vertices[(j - 1) * (int)chunkSize.x + i - 1].y + vertices[j* (int)chunkSize.x + i - 1].y + vertices[(j - 1) * (int)chunkSize.x + i].y + vertices[j* (int)chunkSize.x + i].y > 4.2*MAX_HEIGHT/2)
+                            {
+                                grassTriangles.Add((j - 1) * (int)chunkSize.x + i - 1);
+                                grassTriangles.Add(j * (int)chunkSize.x + i - 1);
+                                grassTriangles.Add((j - 1) * (int)chunkSize.x + i);
 
-                            triangles.Add((j - 1) * (int)chunkSize.x + i);
-                            triangles.Add(j * (int)chunkSize.x + i - 1);
-                            triangles.Add(j * (int)chunkSize.x + i);
+                                grassTriangles.Add((j - 1) * (int)chunkSize.x + i);
+                                grassTriangles.Add(j * (int)chunkSize.x + i - 1);
+                                grassTriangles.Add(j * (int)chunkSize.x + i);
+                            }
+                            else
+                            {
+                                sandTriangles.Add((j - 1) * (int)chunkSize.x + i - 1);
+                                sandTriangles.Add(j * (int)chunkSize.x + i - 1);
+                                sandTriangles.Add((j - 1) * (int)chunkSize.x + i);
+
+                                sandTriangles.Add((j - 1) * (int)chunkSize.x + i);
+                                sandTriangles.Add(j * (int)chunkSize.x + i - 1);
+                                sandTriangles.Add(j * (int)chunkSize.x + i);
+                            }
                         }
                     }
                 }
 
-
                 mesh.vertices = vertices;
-                mesh.triangles = triangles.ToArray();
+
+                Material[] ms;
+                if (grassTriangles.ToArray().Length !=  0 && sandTriangles.ToArray().Length != 0)
+                {
+                    ms = new Material[] { grass, sand };
+                    mesh.subMeshCount = 2;
+                    mesh.SetTriangles(grassTriangles.ToArray(), 0);
+                    mesh.SetTriangles(sandTriangles.ToArray(), 1);
+                }
+                else if(grassTriangles.ToArray().Length != 0)
+                {
+                    ms = new Material[] { grass };
+                    mesh.subMeshCount = 1;
+                    mesh.triangles = grassTriangles.ToArray();
+                }
+                else
+                {
+                    ms = new Material[] { sand };
+                    mesh.subMeshCount = 1;
+                    mesh.triangles = sandTriangles.ToArray();
+                }
+
+                //print(vertices[(1 - 1) * (int)chunkSize.x + 1 - 1].y + " " + vertices[1 * (int)chunkSize.x + 1 - 1].y + " " + vertices[(1 - 1) * (int)chunkSize.x + 1].y + " " + vertices[1 * (int)chunkSize.x + 1].y + " > " + 4*MAX_HEIGHT/2);
 
                 allChunks[xi, yi] = Instantiate(chunk, new Vector3(0,0,0), Quaternion.identity, this.transform) as GameObject;
 
+                allChunks[xi, yi].GetComponent<MeshRenderer>().materials = ms;
                 allChunks[xi, yi].GetComponent<MeshFilter>().mesh = mesh;
                 allChunks[xi, yi].GetComponent<MeshCollider>().sharedMesh = mesh;
             }
