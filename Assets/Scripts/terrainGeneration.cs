@@ -21,7 +21,7 @@ public class terrainGeneration : MonoBehaviour {
     private float[,] map1, map2, _HeightMap;
     private int _width, _height;
 
-    private int MAX_HEIGHT = 200;
+    private int MAX_HEIGHT = 100;
     private int NBMAXSTATE = 50;
 
     private float[,,] _alphaMap;
@@ -111,22 +111,26 @@ public class terrainGeneration : MonoBehaviour {
 
                         if(j != 0 && i !=0)
                         {
-                            if(vertices[(j - 1) * (int)chunkSize.x + i - 1].y + vertices[j* (int)chunkSize.x + i - 1].y + vertices[(j - 1) * (int)chunkSize.x + i].y + vertices[j* (int)chunkSize.x + i].y > 4.2*MAX_HEIGHT/2)
+                            if (vertices[(j - 1) * (int)chunkSize.x + i - 1].y + vertices[j * (int)chunkSize.x + i - 1].y + vertices[(j - 1) * (int)chunkSize.x + i].y > 3.2 * MAX_HEIGHT / 2)
                             {
                                 grassTriangles.Add((j - 1) * (int)chunkSize.x + i - 1);
                                 grassTriangles.Add(j * (int)chunkSize.x + i - 1);
                                 grassTriangles.Add((j - 1) * (int)chunkSize.x + i);
-
-                                grassTriangles.Add((j - 1) * (int)chunkSize.x + i);
-                                grassTriangles.Add(j * (int)chunkSize.x + i - 1);
-                                grassTriangles.Add(j * (int)chunkSize.x + i);
                             }
                             else
                             {
                                 sandTriangles.Add((j - 1) * (int)chunkSize.x + i - 1);
                                 sandTriangles.Add(j * (int)chunkSize.x + i - 1);
                                 sandTriangles.Add((j - 1) * (int)chunkSize.x + i);
-
+                            }  
+                            if(vertices[(j - 1) * (int)chunkSize.x + i].y + vertices[j * (int)chunkSize.x + i - 1].y + vertices[j * (int)chunkSize.x + i].y > 3.2 * MAX_HEIGHT / 2)
+                            {
+                                grassTriangles.Add((j - 1) * (int)chunkSize.x + i);
+                                grassTriangles.Add(j * (int)chunkSize.x + i - 1);
+                                grassTriangles.Add(j * (int)chunkSize.x + i);
+                            }
+                            else
+                            {
                                 sandTriangles.Add((j - 1) * (int)chunkSize.x + i);
                                 sandTriangles.Add(j * (int)chunkSize.x + i - 1);
                                 sandTriangles.Add(j * (int)chunkSize.x + i);
@@ -194,7 +198,7 @@ public class terrainGeneration : MonoBehaviour {
 
 
         if (j > limitSup * dheight) noise -= MAX * (1 - MyMaths.decreasingScale((j - limitSup * dheight) / (limitInf * dheight)));
-        else if (j < 0.15 * dheight) noise -= MAX * (1 - MyMaths.increasingScale(j / (limitInf * dheight)));
+        else if (j < limitInf * dheight) noise -= MAX * (1 - MyMaths.increasingScale(j / (limitInf * dheight)));
 
 
         float x = (float)i; x /= 200;
